@@ -8,7 +8,7 @@
 3. Запускаем наш автотест, который находится: ~/junit5-java-maven/src/test/java/com/example/junit5/StepTest.java
 4. После выполнения автотеста создаётся дирректория с репортом ~/junit5-java-maven/allure-results
    4.1 Кликаем по ней правой км и выполняем Allure TestOps: Upload Results
-5. Переходим в наш [Аллюр](https://hrlink.qatools.cloud/project/1/launches) / просматриваем отчёт
+5. Переходим в наш [Аллюр](https://hrlink.qatools.cloud/project/1/launches) / просматриваем отчёт.
 
 **Примечания:**
 1. Автотест написан так, что мы можем проверить не только отсуствтие ЮЛ/сотрудник/документа/заявления, выполнив вход за кадровика (aluchkin753+1@gmail.com), но и также можем проверить их наличие на тенанте, выполнив логин за Админа (aluchkin753@gmail.com)
