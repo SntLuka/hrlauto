@@ -1,6 +1,5 @@
 package com.example.junit5;
 
-import io.qameta.allure.Allure;
 import io.qameta.allure.Step;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.By;
@@ -23,8 +22,8 @@ public class StepTest {
 
         driver.get("https://app-test11-2.myhrlink.ru/login");
 
-//        Задаём неявное ожидание, т.к. некоторые элементы прогружаются не сразу
-        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(3));
+//        Задаём неявное ожидание, т.к. некоторые элементы прогружаются не сразу (1 раз из 10 тест может падать, т.к. иногда и этого времени не достаточно)
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(1));
 
         //Выполняем логин за кадровика
         WebElement login = (new WebDriverWait(driver, Duration.ofSeconds(10)) //здесь мы задали явное ожидание, т.к. стартовая страница грузится 100500 лет
@@ -41,9 +40,10 @@ public class StepTest {
                 .until(ExpectedConditions.presenceOfElementLocated(By.xpath("//*[@data-qa=\"telegram-invitation-dlg-cancel-button\"]"))));
         telegram.click();
 
-//        Выполняем фильтр по сотруднику
-        WebElement filterEmployees = driver.findElement(By.xpath("//*[@data-qa=\"documents-registry-table-filter-row-employees-select\"]"));
-        filterEmployees.click();
+//        Выполняем фильтр по сотруднику в реестре документов
+        WebElement filterEmployeesDocumentsRegistry = (new WebDriverWait(driver, Duration.ofSeconds(5)) //задали явное ожидание, т.к. после закрытия модального окна UI подтупливает
+                .until(ExpectedConditions.presenceOfElementLocated(By.xpath("//*[@data-qa=\"documents-registry-table-filter-row-employees-select\"]"))));
+        filterEmployeesDocumentsRegistry.click();
         WebElement inputEmployee = driver.findElement(By.xpath("/html/body/root/mat-sidenav-container/mat-sidenav-content/div[1]/ng-component/div/documents-registry-table/div/documents-registry-table-filter-row/div[6]/div[2]/employee-select/ng-select/div/div/div[2]/input"));
         inputEmployee.sendKeys("Орлов Д");
 //        Проверяем, что в списке сотрудников нет Орлов Д.
@@ -55,16 +55,17 @@ public class StepTest {
                 WebElement selectOrlov = driver.findElement(By.xpath("//*[@class=\"mat-tooltip-trigger\"]").xpath("//*[contains(text(), 'Орлов Д')]"));
                 selectOrlov.click();
             } else {
-                System.out.println("В списке сотрудников в фильтре нет Орлов Д.");
+                annotatedStep("В реестре документов в фильтре по сотруднику нет Орлов Д.");
+                System.out.println("В реестре документов в фильтре по сотруднику нет Орлов Д.");
             }
         }
         //Проверяем, что в реестре документов нет документа, в котором в качестве сотрудника указан Орлов Д.
-//        driver.findElement(By.xpath("//*[contains(text(), 'Орлов Д.Е.')]")).isDisplayed();
         boolean orlov = !driver.findElements(By.xpath("//*[contains(text(), 'Орлов Д.Е.')]")).isEmpty();
-//        System.out.print(orlov);
         if (orlov == true) {
+            annotatedStep("В реестре документов есть документ, в котором в качестве сотрудника указан Орлов Д.");
             System.out.println("В реестре документов есть документ, в котором в качестве сотрудника указан Орлов Д.");
         } else {
+            annotatedStep("В реестре документов нет документа, в котором в качестве сотрудника указан Орлов Д.");
             System.out.println("В реестре документов нет документа, в котором в качестве сотрудника указан Орлов Д.");
         }
 
@@ -77,8 +78,10 @@ public class StepTest {
         for (WebElement e : elements) {
             boolean cat = !driver.findElements(By.xpath("//*[contains(text(), 'ООО \"Кот\"')]")).isEmpty();
             if (cat == true) {
+                annotatedStep("В списке юрлиц есть ООО \"Кот\"");
                 System.out.println("В списке юрлиц есть ООО \"Кот\"");
             } else {
+                annotatedStep("В списке юрлиц нет ООО \"Кот\"");
                 System.out.println("В списке юрлиц нет ООО \"Кот\"");
             }
         }
@@ -86,23 +89,48 @@ public class StepTest {
         //Открываем реестр заявлений
         WebElement applications = driver.findElement(By.xpath("//*[@data-qa=\"hr-app-nav-applications-registry-link\"]"));
         applications.click();
-
+//        Выполняем фильтр по сотруднику в реестре заявлений
+        WebElement filterEmployeesApplicationsRegistry = (new WebDriverWait(driver, Duration.ofSeconds(5))
+                .until(ExpectedConditions.presenceOfElementLocated(By.xpath("//*[@data-qa=\"applications-registry-table-filter-row-employees-select\"]"))));
+        filterEmployeesApplicationsRegistry.click();
+        WebElement inputEmployeeApplicationsRegistry = driver.findElement(By.xpath("//applications-registry-table-filter-row/form/div[6]/ng-select/div/div/div[2]/input"));
+        inputEmployeeApplicationsRegistry.sendKeys("Орлов Д");
+//        Проверяем, что в списке сотрудников нет Орлов Д. в фильтре по сотруднику
+//        Получаем список сотрудников, которые есть в выпдающем списке и проверяем, что нет Орлова
+        List<WebElement> listEmployeesApplicationsRegistry = driver.findElements(By.xpath("//*[@class=\"ng-dropdown-panel-items scroll-host\"]"));
+        for (WebElement e : listEmployeesApplicationsRegistry) {
+            boolean employeesApplicationsOrlov = !driver.findElements(By.xpath("//*[contains(text(), 'Орлов Д')]")).isEmpty();
+            if (employeesApplicationsOrlov == true) {
+                WebElement orlovEmployeesSelect = driver.findElement(By.xpath("//*[@class=\"ng-star-inserted\"]").xpath("//*[contains(text(), 'Орлов Д')]"));
+                orlovEmployeesSelect.click();
+            } else {
+                annotatedStep("В реестре документов в фильтре по сотруднику нет Орлов Д.");
+                System.out.println("В реестре документов в фильтре по сотруднику нет Орлов Д.");
+            }
+        }
         //Проверяем, что в реестре заявлений не отображается заявление от Орлова Д.
         boolean applicationsOrlov = !driver.findElements(By.xpath("//*[contains(text(), 'Орлов Д.Е.')]")).isEmpty();
         if (applicationsOrlov == true) {
+            annotatedStep("В реестре заявлений есть заявление, в котором в качестве сотрудника указан Орлов Д.");
             System.out.println("В реестре заявлений есть заявление, в котором в качестве сотрудника указан Орлов Д.");
         } else {
+            annotatedStep("В реестре заявлений нет заявления, в котором в качестве сотрудника указан Орлов Д.");
             System.out.println("В реестре заявлений нет заявления, в котором в качестве сотрудника указан Орлов Д.");
         }
 
         //Открываем реестр сотрудников
         WebElement employeesRegistry = driver.findElement(By.xpath("//*[@data-qa=\"hr-app-nav-employees-registry-link\"]"));
         employeesRegistry.click();
+        //Выполняем фильтр по Орлов Д
+        WebElement inputEmployeeName = driver.findElement(By.xpath("//*[@data-qa=\"registry-header-name-input\"]"));
+        inputEmployeeName.sendKeys("Орлов Д");
         //Проверяем, что в реестре сотрудников не отображается Орлов Д.
-        boolean employeesRegistryOrlov = !driver.findElements(By.xpath("//*[contains(text(), 'Орлов Д.Е.')]")).isEmpty();
+        boolean employeesRegistryOrlov = !driver.findElements(By.xpath("//*[@data-qa=\"registry-row-employee-link\"]").xpath("//*[contains(text(), 'Орлов Дмитрий Евгеньевич')]")).isEmpty();
         if (employeesRegistryOrlov == true) {
+            annotatedStep("В реестре сотрудников есть Орлов Д.");
             System.out.println("В реестре сотрудников есть Орлов Д.");
         } else {
+            annotatedStep("В реестре сотрудников нет Орлова Д.");
             System.out.println("В реестре сотрудников нет Орлова Д.");
         }
 
@@ -112,20 +140,13 @@ public class StepTest {
         //Проверяем, что в Справочнике ЮЛ нет ООО "Кот"
         boolean catalogsCat = !driver.findElements(By.xpath("//*[contains(text(), 'ООО \"Кот\"')]")).isEmpty();
         if (catalogsCat == true) {
+            annotatedStep("В Справочнике ЮЛ есть ООО \"Кот\"");
             System.out.println("В Справочнике ЮЛ есть ООО \"Кот\"");
         } else {
+            annotatedStep("В Справочнике ЮЛ нет ООО \"Кот\"");
             System.out.println("В Справочнике ЮЛ нет ООО \"Кот\"");
         }
         driver.quit();
-    }
-
-    @Test
-    public void lambdaStepTest() {
-        final String localParameter = "parameter value";
-        Allure.step(String.format("Parent lambda step with parameter [%s]", localParameter), (step) -> {
-            step.parameter("parameter", localParameter);
-            Allure.step(String.format("Nested lambda step with global parameter [%s]", GLOBAL_PARAMETER));
-        });
     }
 
     @Step("Parent annotated step with parameter [{parameter}]")
@@ -135,7 +156,6 @@ public class StepTest {
 
     @Step("Nested annotated step with global parameter [{this.GLOBAL_PARAMETER}]")
     public void nestedAnnotatedStep() {
-
     }
 
 }
