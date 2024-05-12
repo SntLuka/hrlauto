@@ -1,10 +1,10 @@
 **Как всё работает:**
 1. Для просмотра автоматического отчета по проходимым шагам и проверкам нам понадобится плагин  Allure TestOps Support, устанавливаем его в File | Settings | Plugins, выполнив поиск
-2. После установки плагина настраиваем его: 
-2.1. File | Settings | Tools | Allure TestOps нужно внести url нашего Аллюра (https://hrlink.qatools.cloud/) + token
-тамже выбираем путь, куда будет сохраняться репорт ~/junit5-java-maven/target/allure-results
-сохранили
-2.2 File | Settings | Tools | Allure TestOps | Project Settings - выбираем Project HR-Link
+2. После установки плагина настраиваем его:
+   1. File | Settings | Tools | Allure TestOps нужно внести url нашего Аллюра (https://hrlink.qatools.cloud/) + token
+      1. тамже выбираем путь, куда будет сохраняться репорт ~/junit5-java-maven/target/allure-results
+   сохранили
+   2. File | Settings | Tools | Allure TestOps | Project Settings - выбираем Project HR-Link
 3. Запускаем наш автотест, который находится: ~/junit5-java-maven/src/test/java/com/example/junit5/StepTest.java
 4. После выполнения автотеста создаётся дирректория с репортом ~/junit5-java-maven/allure-results
    4.1 Кликаем по ней правой км и выполняем Allure TestOps: Upload Results
